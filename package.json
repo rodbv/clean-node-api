@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "test:staged": "jest --passWithNoTests"
+    "test": "jest --passWithNoTests",
+    "test:staged": "jest --passWithNoTests",
+    "test:watch": "jest --watch --passWithNoTests"
   },
   "keywords": [],
   "author": "Rodrigo Vieira",
