@@ -1,8 +1,14 @@
 {
-  "extends": "standard-with-typescript",
+  "extends": [
+    "standard-with-typescript",
+    "plugin:mocha/recommended"
+  ],
   "parserOptions": {
     "project": "./tsconfig.json"
   },
+  "plugins": [
+    "mocha"
+  ],
   "rules": {
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/consistent-type-definitions": "off",
@@ -14,6 +20,8 @@
     "import/export": "off",
     "prefer-template": "error",
     "no-useless-concat": "error",
-    "no-console": "error"
+    "no-console": "warn",
+    "mocha/no-exclusive-tests": "warn",
+    "mocha/no-mocha-arrows": "off"
   }
 }
