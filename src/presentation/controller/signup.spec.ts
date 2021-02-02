@@ -1,13 +1,13 @@
 import { StatusCodes } from 'http-status-codes'
 import { SignUpController } from './signup'
 
-const makeController = (): SignUpController => {
-  class EmailValidatorStub {
-    isValid (email: string): boolean {
-      return email.indexOf('@') > 0
-    }
+class EmailValidatorStub {
+  isValid (): boolean {
+    return true
   }
-  return new SignUpController(new EmailValidatorStub())
+}
+const makeController = (emailValidator = new EmailValidatorStub()): SignUpController => {
+  return new SignUpController(emailValidator)
 }
 
 describe('SignUp controller', () => {
@@ -72,7 +72,10 @@ describe('SignUp controller', () => {
   })
 
   test('should return 400 if invalid email format is provided', () => {
-    const sut = makeController()
+    const emailValidatorStub = new EmailValidatorStub()
+    jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
+
+    const sut = makeController(emailValidatorStub)
     const httpRequest = {
       body: {
         name: 'any-name',
