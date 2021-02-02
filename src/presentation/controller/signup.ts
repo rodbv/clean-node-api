@@ -1,10 +1,9 @@
 import { InvalidParamError } from '../errors'
 import { MissingParamError } from '../errors/missing-param-error'
-import { badRequest } from '../protocols/bad-request'
+import { badRequest, internalServerError } from '../protocols/http-errors'
 import { Controller } from '../protocols/controller'
 import { EmailValidator } from '../protocols/email-validator'
 import { HttpRequest, HttpResponse } from '../protocols/http'
-import { internalServerError } from '../protocols/internal-server-error'
 export class SignUpController implements Controller {
   private readonly emailValidator: EmailValidator
 
@@ -26,6 +25,8 @@ export class SignUpController implements Controller {
         return badRequest(new InvalidParamError('email'))
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error)
       return internalServerError()
     }
   }
