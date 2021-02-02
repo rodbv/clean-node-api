@@ -1,5 +1,5 @@
-import { StatusCodes } from 'http-status-codes'
 import { MissingParamError } from '../errors/missing-param-error'
+import { badRequest } from '../protocols/bad-request'
 import { httpRequest, httpResponse } from '../protocols/http'
 
 export class SignUpController {
@@ -9,10 +9,7 @@ export class SignUpController {
     for (const field of required) {
       console.log('httpRequest.body[field]', httpRequest.body[field])
       if (!httpRequest.body[field]) {
-        return {
-          statusCode: StatusCodes.BAD_REQUEST,
-          body: new MissingParamError(field)
-        }
+        return badRequest(new MissingParamError(field))
       }
     }
   }
