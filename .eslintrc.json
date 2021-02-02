@@ -13,6 +13,7 @@
     "@typescript-eslint/no-namespace": "off",
     "import/export": "off",
     "prefer-template": "error",
-    "no-useless-concat": "error"
+    "no-useless-concat": "error",
+    "no-console": "warn"
   }
 }

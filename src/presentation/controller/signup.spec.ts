@@ -85,7 +85,7 @@ describe('SignUp controller', () => {
       }
     }
     const httpResponse = sut.handle(httpRequest)
-
+    console.log('oi')
     expect(httpResponse.statusCode).toBe(StatusCodes.BAD_REQUEST)
     expect(httpResponse.body).toEqual(new Error('Invalid param: email'))
     expect(emailValidatorSpy).toHaveBeenCalledWith(httpRequest.body.email)
