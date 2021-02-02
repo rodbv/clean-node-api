@@ -1,7 +1,8 @@
 import { StatusCodes } from 'http-status-codes'
+import { httpRequest, httpResponse } from '../protocols/http'
 
 export class SignUpController {
-  handle (httpRequest: any): any {
+  handle (httpRequest: httpRequest): httpResponse {
     const required = ['name', 'email']
 
     for (const field of required) {
