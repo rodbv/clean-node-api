@@ -2,8 +2,8 @@ import { StatusCodes } from 'http-status-codes'
 import { HttpResponse } from './http'
 
 export const badRequest =
-(error: Error, statusCode: number = StatusCodes.BAD_REQUEST): HttpResponse => ({
-  statusCode,
+(error: Error): HttpResponse => ({
+  statusCode: StatusCodes.BAD_REQUEST,
   body: error
 })
 
