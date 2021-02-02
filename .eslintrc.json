@@ -21,7 +21,7 @@
     "prefer-template": "error",
     "no-useless-concat": "error",
     "no-console": "warn",
-    "mocha/no-exclusive-tests": "warn",
+    "mocha/no-exclusive-tests": "error",
     "mocha/no-mocha-arrows": "off"
   }
 }
