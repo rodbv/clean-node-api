@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
+import { EmailValidator } from '../protocols/email-validator'
 import { SignUpController } from './signup'
 
 class EmailValidatorStub {
@@ -6,8 +7,8 @@ class EmailValidatorStub {
     return true
   }
 }
-const makeController = (emailValidator = new EmailValidatorStub()): SignUpController => {
-  return new SignUpController(emailValidator)
+const makeController = (emailValidator?: EmailValidator): SignUpController => {
+  return new SignUpController(emailValidator || new EmailValidatorStub())
 }
 
 describe('SignUp controller', () => {
@@ -89,5 +90,27 @@ describe('SignUp controller', () => {
     expect(httpResponse.statusCode).toBe(StatusCodes.BAD_REQUEST)
     expect(httpResponse.body).toEqual(new Error('Invalid param: email'))
     expect(emailValidatorSpy).toHaveBeenCalledWith(httpRequest.body.email)
+  })
+
+  test('should return 500 if emailValidator throws an error', () => {
+    class BrokenEmailValidatorStub implements EmailValidator {
+      isValid (email: string): boolean {
+        throw new Error()
+      }
+    }
+
+    const sut = makeController(new BrokenEmailValidatorStub())
+    const httpRequest = {
+      body: {
+        name: 'any-name',
+        email: 'invalid',
+        password: 'any-password',
+        passwordConfirmation: 'any-password'
+      }
+    }
+    const httpResponse = sut.handle(httpRequest)
+
+    expect(httpResponse.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+    expect(httpResponse.body).toEqual('Internal Server Error')
   })
 })
