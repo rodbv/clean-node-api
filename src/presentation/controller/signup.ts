@@ -25,8 +25,6 @@ export class SignUpController implements Controller {
         return badRequest(new InvalidParamError('email'))
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error)
       return internalServerError()
     }
   }
