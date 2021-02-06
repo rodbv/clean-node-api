@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
-import { AccountModel } from '../../domain/models/account'
-import { AddAccount, AddAccountModel } from '../../domain/use-cases/add-account'
-import { EmailValidator } from '../protocols/email-validator'
+import { AccountModel } from '../../../domain/models/account'
+import { AddAccount, AddAccountModel } from '../../../domain/use-cases/add-account'
+import { EmailValidator } from './email-validator'
 import { SignUpController } from './signup'
 
 interface MakeSutTypes {
