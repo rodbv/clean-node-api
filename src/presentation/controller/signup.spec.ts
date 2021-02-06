@@ -23,12 +23,11 @@ const makeEmailValidator = (): EmailValidator => {
 const makeAddAccount = (): AddAccount => {
   class AddAccountStub implements AddAccount {
     add (account: AddAccountModel): AccountModel {
-      const { name, email, password } = account
+      const { name, email } = account
       return {
         id: 'valid_id',
         name,
-        email,
-        password
+        email
       }
     }
   }
@@ -176,6 +175,7 @@ describe('SignUp controller', () => {
       const httpResponse = sut.handle(httpRequest)
 
       expect(httpResponse.statusCode).toBe(StatusCodes.CREATED)
+      console.log('httpResponse.body', httpResponse.body)
 
       expect(httpResponse.body.id).toEqual('valid_id')
       expect(addAccountSpy).toBeCalledTimes(1)
