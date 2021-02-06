@@ -7,6 +7,7 @@ import { SignUpController } from './signup'
 interface MakeSutTypes {
   sut: SignUpController
   emailValidatorStub: EmailValidator
+  addAccountStub: AddAccount
 }
 
 const makeEmailValidator = (): EmailValidator => {
@@ -22,11 +23,12 @@ const makeEmailValidator = (): EmailValidator => {
 const makeAddAccount = (): AddAccount => {
   class AddAccountStub implements AddAccount {
     add (account: AddAccountModel): AccountModel {
+      const { name, email, password } = account
       return {
         id: 'valid_id',
-        name: 'valid_name',
-        email: 'valid@email.com',
-        password: 'valid_password'
+        name,
+        email,
+        password
       }
     }
   }
@@ -39,7 +41,7 @@ const makeSut = (): MakeSutTypes => {
   const addAccountStub = makeAddAccount()
   const sut = new SignUpController(emailValidatorStub, addAccountStub)
 
-  return { sut, emailValidatorStub }
+  return { sut, emailValidatorStub, addAccountStub }
 }
 
 describe('SignUp controller', () => {
@@ -159,13 +161,14 @@ describe('SignUp controller', () => {
   })
 
   describe('add account', () => {
-    test('returns 201 if signup controller is called with valid payload', () => {
-      const { sut } = makeSut()
+    test('uses addAccount function and returns 201 if signup controller is called with valid payload', () => {
+      const { sut, addAccountStub } = makeSut()
+      const addAccountSpy = jest.spyOn(addAccountStub, 'add')
 
       const httpRequest = {
         body: {
           name: 'any-name',
-          email: 'invalid',
+          email: 'valid_email',
           password: 'any-password',
           passwordConfirmation: 'any-password'
         }
@@ -173,7 +176,14 @@ describe('SignUp controller', () => {
       const httpResponse = sut.handle(httpRequest)
 
       expect(httpResponse.statusCode).toBe(StatusCodes.CREATED)
+
       expect(httpResponse.body.id).toEqual('valid_id')
+      expect(addAccountSpy).toBeCalledTimes(1)
+      expect(addAccountSpy).toBeCalledWith({
+        name: httpRequest.body.name,
+        email: httpRequest.body.email,
+        password: httpRequest.body.password
+      })
     })
   })
 })
