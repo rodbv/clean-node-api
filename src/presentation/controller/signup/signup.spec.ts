@@ -43,16 +43,26 @@ const makeSut = (): MakeSutTypes => {
   return { sut, emailValidatorStub, addAccountStub }
 }
 
+const makePayload = ({ removeField = '' } = {}): any => {
+  const validPayload = {
+    name: 'any-name',
+    email: 'any-email@email.com',
+    password: 'any-password',
+    passwordConfirmation: 'any-password'
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+  removeField && delete validPayload[removeField]
+
+  return validPayload
+}
+
 describe('SignUp controller', () => {
   describe('validation', () => {
     test('should return 400 if no name is provided', () => {
       const { sut } = makeSut()
       const httpRequest = {
-        body: {
-          email: 'any-email@email.com',
-          password: 'any-password',
-          passwordConfirmation: 'any-password'
-        }
+        body: makePayload({ removeField: 'name' })
       }
       const httpResponse = sut.handle(httpRequest)
 
@@ -63,11 +73,7 @@ describe('SignUp controller', () => {
     test('should return 400 if no email is provided', () => {
       const { sut } = makeSut()
       const httpRequest = {
-        body: {
-          name: 'any-name',
-          password: 'any-password',
-          passwordConfirmation: 'any-password'
-        }
+        body: makePayload({ removeField: 'email' })
       }
       const httpResponse = sut.handle(httpRequest)
 
@@ -78,11 +84,7 @@ describe('SignUp controller', () => {
     test('should return 400 if no password is provided', () => {
       const { sut } = makeSut()
       const httpRequest = {
-        body: {
-          name: 'any-name',
-          email: 'email@email.com',
-          passwordConfirmation: 'any-password'
-        }
+        body: makePayload({ removeField: 'password' })
       }
       const httpResponse = sut.handle(httpRequest)
 
@@ -93,11 +95,7 @@ describe('SignUp controller', () => {
     test('should return 400 if no passwordConfirmation is provided', () => {
       const { sut } = makeSut()
       const httpRequest = {
-        body: {
-          name: 'any-name',
-          email: 'email@email.com',
-          password: 'any-password'
-        }
+        body: makePayload({ removeField: 'passwordConfirmation' })
       }
       const httpResponse = sut.handle(httpRequest)
 
@@ -107,15 +105,10 @@ describe('SignUp controller', () => {
 
     test('should return 400 if password and passwordConfirmation don\'t match', () => {
       const { sut } = makeSut()
-      const httpRequest = {
-        body: {
-          name: 'any-name',
-          email: 'email@email.com',
-          password: 'any-password',
-          passwordConfirmation: 'different'
-        }
-      }
-      const httpResponse = sut.handle(httpRequest)
+      const payload = makePayload()
+      payload.passwordConfirmation = 'invalid'
+
+      const httpResponse = sut.handle({ body: payload })
 
       expect(httpResponse.statusCode).toBe(StatusCodes.BAD_REQUEST)
       expect(httpResponse.body).toEqual(new Error('Invalid param: passwordConfirmation'))
@@ -124,19 +117,15 @@ describe('SignUp controller', () => {
     test('should return 400 if invalid email format is provided', () => {
       const { sut, emailValidatorStub } = makeSut()
       const emailValidatorSpy = jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
-      const httpRequest = {
-        body: {
-          name: 'any-name',
-          email: 'invalid',
-          password: 'any-password',
-          passwordConfirmation: 'any-password'
-        }
-      }
-      const httpResponse = sut.handle(httpRequest)
+
+      const payload = makePayload()
+      payload.email = 'invalid'
+
+      const httpResponse = sut.handle({ body: payload })
 
       expect(httpResponse.statusCode).toBe(StatusCodes.BAD_REQUEST)
       expect(httpResponse.body).toEqual(new Error('Invalid param: email'))
-      expect(emailValidatorSpy).toHaveBeenCalledWith(httpRequest.body.email)
+      expect(emailValidatorSpy).toHaveBeenCalledWith(payload.email)
     })
 
     test('should return 500 if emailValidator throws an error', () => {
@@ -164,14 +153,7 @@ describe('SignUp controller', () => {
       const { sut, addAccountStub } = makeSut()
       const addAccountSpy = jest.spyOn(addAccountStub, 'add')
 
-      const httpRequest = {
-        body: {
-          name: 'any-name',
-          email: 'valid_email',
-          password: 'any-password',
-          passwordConfirmation: 'any-password'
-        }
-      }
+      const httpRequest = { body: makePayload() }
       const httpResponse = sut.handle(httpRequest)
 
       expect(httpResponse.statusCode).toBe(StatusCodes.CREATED)
@@ -190,14 +172,7 @@ describe('SignUp controller', () => {
 
       jest.spyOn(addAccountStub, 'add').mockImplementationOnce(() => { throw new Error() })
 
-      const httpRequest = {
-        body: {
-          name: 'any-name',
-          email: 'valid@email.com',
-          password: 'any-password',
-          passwordConfirmation: 'any-password'
-        }
-      }
+      const httpRequest = { body: makePayload() }
       const httpResponse = sut.handle(httpRequest)
 
       expect(httpResponse.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
