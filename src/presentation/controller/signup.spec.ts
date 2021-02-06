@@ -16,7 +16,7 @@ const makeController = (): any => {
 }
 
 describe('SignUp controller', () => {
-  test('should return 400 BAD_REQUEST if no name is provided', () => {
+  test('should return 400 if no name is provided', () => {
     const { controller } = makeController()
     const httpRequest = {
       body: {
@@ -31,7 +31,7 @@ describe('SignUp controller', () => {
     expect(httpResponse.body).toEqual(new Error('Missing param: name'))
   })
 
-  test('should return 400 BAD_REQUEST if no email is provided', () => {
+  test('should return 400 if no email is provided', () => {
     const { controller } = makeController()
     const httpRequest = {
       body: {
@@ -46,7 +46,7 @@ describe('SignUp controller', () => {
     expect(httpResponse.body).toEqual(new Error('Missing param: email'))
   })
 
-  test('should return 400 BAD_REQUEST if no password is provided', () => {
+  test('should return 400 if no password is provided', () => {
     const { controller } = makeController()
     const httpRequest = {
       body: {
@@ -61,7 +61,7 @@ describe('SignUp controller', () => {
     expect(httpResponse.body).toEqual(new Error('Missing param: password'))
   })
 
-  test('should return 400 BAD_REQUEST if no passwordConfirmation is provided', () => {
+  test('should return 400 if no passwordConfirmation is provided', () => {
     const { controller } = makeController()
     const httpRequest = {
       body: {
@@ -74,6 +74,22 @@ describe('SignUp controller', () => {
 
     expect(httpResponse.statusCode).toBe(StatusCodes.BAD_REQUEST)
     expect(httpResponse.body).toEqual(new Error('Missing param: passwordConfirmation'))
+  })
+
+  test('should return 400 if password and passwordConfirmation don\'t match', () => {
+    const { controller } = makeController()
+    const httpRequest = {
+      body: {
+        name: 'any-name',
+        email: 'email@email.com',
+        password: 'any-password',
+        passwordConfirmation: 'different'
+      }
+    }
+    const httpResponse = controller.handle(httpRequest)
+
+    expect(httpResponse.statusCode).toBe(StatusCodes.BAD_REQUEST)
+    expect(httpResponse.body).toEqual(new Error('Invalid param: passwordConfirmation'))
   })
 
   test('should return 400 if invalid email format is provided', () => {
