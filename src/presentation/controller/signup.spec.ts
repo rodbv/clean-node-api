@@ -2,18 +2,22 @@ import { StatusCodes } from 'http-status-codes'
 import { EmailValidator } from '../protocols/email-validator'
 import { SignUpController } from './signup'
 
-class EmailValidatorStub {
-  isValid (): boolean {
-    return true
+const makeController = (): any => {
+  class EmailValidatorStub implements EmailValidator {
+    isValid (): boolean {
+      return true
+    }
   }
-}
-const makeController = (emailValidator?: EmailValidator): SignUpController => {
-  return new SignUpController(emailValidator || new EmailValidatorStub())
+
+  const emailValidator = new EmailValidatorStub()
+  const controller = new SignUpController(emailValidator)
+
+  return { controller, emailValidator }
 }
 
 describe('SignUp controller', () => {
   test('should return 400 BAD_REQUEST if no name is provided', () => {
-    const sut = makeController()
+    const { controller } = makeController()
     const httpRequest = {
       body: {
         email: 'any-email@email.com',
@@ -21,14 +25,14 @@ describe('SignUp controller', () => {
         passwordConfirmation: 'any-password'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = controller.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(StatusCodes.BAD_REQUEST)
     expect(httpResponse.body).toEqual(new Error('Missing param: name'))
   })
 
   test('should return 400 BAD_REQUEST if no email is provided', () => {
-    const sut = makeController()
+    const { controller } = makeController()
     const httpRequest = {
       body: {
         name: 'any-name',
@@ -36,14 +40,14 @@ describe('SignUp controller', () => {
         passwordConfirmation: 'any-password'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = controller.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(StatusCodes.BAD_REQUEST)
     expect(httpResponse.body).toEqual(new Error('Missing param: email'))
   })
 
   test('should return 400 BAD_REQUEST if no password is provided', () => {
-    const sut = makeController()
+    const { controller } = makeController()
     const httpRequest = {
       body: {
         name: 'any-name',
@@ -51,14 +55,14 @@ describe('SignUp controller', () => {
         passwordConfirmation: 'any-password'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = controller.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(StatusCodes.BAD_REQUEST)
     expect(httpResponse.body).toEqual(new Error('Missing param: password'))
   })
 
   test('should return 400 BAD_REQUEST if no passwordConfirmation is provided', () => {
-    const sut = makeController()
+    const { controller } = makeController()
     const httpRequest = {
       body: {
         name: 'any-name',
@@ -66,17 +70,15 @@ describe('SignUp controller', () => {
         password: 'any-password'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = controller.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(StatusCodes.BAD_REQUEST)
     expect(httpResponse.body).toEqual(new Error('Missing param: passwordConfirmation'))
   })
 
   test('should return 400 if invalid email format is provided', () => {
-    const emailValidatorStub = new EmailValidatorStub()
-    const emailValidatorSpy = jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
-
-    const sut = makeController(emailValidatorStub)
+    const { controller, emailValidator } = makeController()
+    const emailValidatorSpy = jest.spyOn(emailValidator, 'isValid').mockReturnValueOnce(false)
     const httpRequest = {
       body: {
         name: 'any-name',
@@ -85,7 +87,7 @@ describe('SignUp controller', () => {
         passwordConfirmation: 'any-password'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = controller.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(StatusCodes.BAD_REQUEST)
     expect(httpResponse.body).toEqual(new Error('Invalid param: email'))
@@ -93,13 +95,10 @@ describe('SignUp controller', () => {
   })
 
   test('should return 500 if emailValidator throws an error', () => {
-    class BrokenEmailValidatorStub implements EmailValidator {
-      isValid (email: string): boolean {
-        throw new Error()
-      }
-    }
+    const { controller, emailValidator } = makeController()
 
-    const sut = makeController(new BrokenEmailValidatorStub())
+    jest.spyOn(emailValidator, 'isValid').mockImplementationOnce(() => { throw new Error() })
+
     const httpRequest = {
       body: {
         name: 'any-name',
@@ -108,7 +107,7 @@ describe('SignUp controller', () => {
         passwordConfirmation: 'any-password'
       }
     }
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = controller.handle(httpRequest)
 
     expect(httpResponse.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
     expect(httpResponse.body).toEqual('Internal Server Error')
