@@ -175,7 +175,6 @@ describe('SignUp controller', () => {
       const httpResponse = sut.handle(httpRequest)
 
       expect(httpResponse.statusCode).toBe(StatusCodes.CREATED)
-      console.log('httpResponse.body', httpResponse.body)
 
       expect(httpResponse.body.id).toEqual('valid_id')
       expect(addAccountSpy).toBeCalledTimes(1)
