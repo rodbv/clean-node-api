@@ -24,11 +24,12 @@ const makeAddAccount = (): AddAccount => {
   class AddAccountStub implements AddAccount {
     async add (account: AddAccountModel): Promise<AccountModel> {
       const { name, email } = account
-      return {
+      const fakeAccount = {
         id: 'valid_id',
         name,
         email
       }
+      return new Promise(resolve => resolve(fakeAccount))
     }
   }
 
