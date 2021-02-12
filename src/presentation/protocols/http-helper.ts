@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
+import { ServerError } from '../errors'
 import { HttpResponse } from './http'
 
 export const ok =
@@ -18,8 +19,7 @@ export const badRequest =
   body: error
 })
 
-export const internalServerError =
-(message?: string): HttpResponse => ({
-  statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-  body: message || 'Internal Server Error'
+export const internalServerError = (error: Error): HttpResponse => ({
+  statusCode: 500,
+  body: new ServerError(error.stack)
 })

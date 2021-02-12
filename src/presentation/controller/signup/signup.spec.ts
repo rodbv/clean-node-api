@@ -145,7 +145,6 @@ describe('SignUp controller', () => {
       const httpResponse = await sut.handle(httpRequest)
 
       expect(httpResponse.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
-      expect(httpResponse.body).toEqual('Internal Server Error')
     })
   })
 
@@ -179,7 +178,6 @@ describe('SignUp controller', () => {
       const httpResponse = await sut.handle(httpRequest)
 
       expect(httpResponse.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
-      expect(httpResponse.body).toEqual('Internal Server Error')
     })
   })
 })
