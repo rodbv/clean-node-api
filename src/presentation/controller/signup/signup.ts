@@ -1,11 +1,10 @@
 import { InvalidParamError } from '../../errors'
 import { MissingParamError } from '../../errors/missing-param-error'
-import { badRequest, internalServerError } from '../../protocols/http-errors'
+import { badRequest, created, internalServerError } from '../../protocols/http-helper'
 import { Controller } from '../../protocols/controller'
 import { EmailValidator } from './email-validator'
 import { HttpRequest, HttpResponse } from '../../protocols/http'
 import { AddAccount } from '../../../domain/use-cases/add-account'
-import { StatusCodes } from 'http-status-codes'
 export class SignUpController implements Controller {
   private readonly emailValidator: EmailValidator
   private readonly addAccount: AddAccount
@@ -37,7 +36,7 @@ export class SignUpController implements Controller {
 
       const account = this.addAccount.add({ name, email, password })
 
-      return { statusCode: StatusCodes.CREATED, body: account }
+      return created(account)
     } catch (error) {
       return internalServerError()
     }
